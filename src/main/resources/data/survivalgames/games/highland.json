@@ -1,7 +1,7 @@
 {
   "type": "survivalgames:survivalgames",
   "name": "Survival Games (Highland)",
-  "icon": "dirt_block",
+  "icon": "dirt",
   "border": {
     "start_size": 512,
     "end_size": 16,
