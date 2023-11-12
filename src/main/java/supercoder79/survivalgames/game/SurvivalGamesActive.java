@@ -89,6 +89,7 @@ public final class SurvivalGamesActive {
             game.setRule(GameRuleType.BLOCK_DROPS, ActionResult.PASS);
             game.setRule(GameRuleType.FALL_DAMAGE, ActionResult.PASS);
             game.setRule(GameRuleType.HUNGER, ActionResult.FAIL);
+            game.setRule(GameRuleType.SATURATED_REGENERATION, ActionResult.FAIL);
             game.setRule(GameRuleType.UNSTABLE_TNT, ActionResult.PASS);
             game.setRule(GameRuleType.THROW_ITEMS, ActionResult.SUCCESS);
             game.setRule(SurvivalGames.DISABLE_SPAWNERS, ActionResult.SUCCESS);
