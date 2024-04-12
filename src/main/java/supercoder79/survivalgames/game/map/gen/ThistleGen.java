@@ -16,13 +16,13 @@ public class ThistleGen implements MapGen {
 
     @Override
     public void generate(ServerWorldAccess world, BlockPos pos, Random random) {
-        BlockState state = random.nextDouble() < 0.1 ? getFlower(pos) : Blocks.GRASS.getDefaultState();
+        BlockState state = random.nextDouble() < 0.1 ? getFlower(pos) : Blocks.SHORT_GRASS.getDefaultState();
         boolean grassBelow = world.getBlockState(pos.mutableCopy().down()).getBlock().equals(Blocks.GRASS_BLOCK);
         if (!world.getBlockState(pos).getBlock().equals(Blocks.AIR)) return;
         if (grassBelow) {
             world.setBlockState(pos, state, 0);
         } else {
-            if (random.nextDouble() < 0.5 && state.getBlock().equals(Blocks.GRASS)) world.setBlockState(pos, state, 0);
+            if (random.nextDouble() < 0.5 && state.getBlock().equals(Blocks.SHORT_GRASS)) world.setBlockState(pos, state, 0);
         }
     }
 

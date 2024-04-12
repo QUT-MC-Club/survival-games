@@ -44,6 +44,7 @@ import xyz.nucleoid.stimuli.event.player.PlayerDeathEvent;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 public final class SurvivalGamesActive {
@@ -200,10 +201,7 @@ public final class SurvivalGamesActive {
             this.tracker.iterateRedstoneTracked(this::tickMobSpawners);
         }
 
-        Iterator<ActiveLogic> iterator = this.logics.iterator();
-        // prevent CMEs
-        while (iterator.hasNext()) {
-            ActiveLogic logic = iterator.next();
+        for (var logic : List.copyOf(this.logics)) {
             logic.tick(time);
         }
     }
@@ -217,7 +215,7 @@ public final class SurvivalGamesActive {
             PlayerEntity player = this.world.getClosestPlayer(pred, pos.getX(), pos.getY(), pos.getZ());
 
             if (player != null) {
-                this.participants.sendMessage(Text.literal(player.getEntityName() + " triggered a spawner!").formatted(Formatting.GOLD));
+                this.participants.sendMessage(Text.literal(player.getNameForScoreboard() + " triggered a spawner!").formatted(Formatting.GOLD));
             } else {
                 this.participants.sendMessage(Text.literal("A spawner has been triggered!").formatted(Formatting.GOLD));
             }
@@ -267,7 +265,7 @@ public final class SurvivalGamesActive {
         if (survival == 1) {
             for (ServerPlayerEntity participant : this.participants) {
                 if (participant.interactionManager.getGameMode().isSurvivalLike()) {
-                    players.sendMessage(Text.literal(participant.getEntityName() + " won!").formatted(Formatting.GOLD));
+                    players.sendMessage(Text.literal(participant.getNameForScoreboard() + " won!").formatted(Formatting.GOLD));
                     this.gameCloseTick = this.space.getTime() + (20 * 10);
                     break;
                 }
