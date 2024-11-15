@@ -20,7 +20,7 @@ public class HighlandSpringGen implements BiomeGen {
 
     @Override
     public RegistryKey<Biome> getFakingBiome() {
-        return RegistryKey.of(RegistryKeys.BIOME, new Identifier("survivalgames", "highland"));
+        return RegistryKey.of(RegistryKeys.BIOME, Identifier.of("survivalgames", "highland"));
     }
 
     @Override

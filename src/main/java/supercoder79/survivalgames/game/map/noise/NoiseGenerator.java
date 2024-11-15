@@ -7,10 +7,10 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import supercoder79.survivalgames.game.config.SurvivalGamesConfig;
 import supercoder79.survivalgames.game.map.biome.source.FakeBiomeSource;
-import xyz.nucleoid.plasmid.registry.TinyRegistry;
+import xyz.nucleoid.plasmid.api.util.TinyRegistry;
 
 public interface NoiseGenerator {
-	TinyRegistry<Codec<? extends NoiseGenerator>> REGISTRY = TinyRegistry.create();
+	TinyRegistry<MapCodec<? extends NoiseGenerator>> REGISTRY = TinyRegistry.create();
 	MapCodec<NoiseGenerator> CODEC = REGISTRY.dispatchMap(NoiseGenerator::getCodec, Function.identity());
 
 	void initialize(Random random, SurvivalGamesConfig config);
@@ -29,5 +29,5 @@ public interface NoiseGenerator {
 		return 0.60;
 	}
 
-	Codec<? extends NoiseGenerator> getCodec();
+	MapCodec<? extends NoiseGenerator> getCodec();
 }

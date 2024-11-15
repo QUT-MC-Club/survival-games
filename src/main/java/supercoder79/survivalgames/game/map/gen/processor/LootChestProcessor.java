@@ -1,6 +1,7 @@
 package supercoder79.survivalgames.game.map.gen.processor;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.structure.StructurePlacementData;
 import net.minecraft.structure.StructureTemplate;
@@ -15,7 +16,7 @@ import supercoder79.survivalgames.game.map.loot.LootProvider;
 import supercoder79.survivalgames.game.map.loot.LootProviders;
 
 public class LootChestProcessor extends StructureProcessor {
-	public static Codec<LootChestProcessor> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+	public static MapCodec<LootChestProcessor> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 			BlockPos.CODEC.fieldOf("pos").forGetter(p -> p.chestPos),
 			Codec.BOOL.fieldOf("match_terrain").orElse(false).forGetter(p -> p.matchTerrain),
 			Codec.STRING.fieldOf("type").forGetter(p -> p.lootType)

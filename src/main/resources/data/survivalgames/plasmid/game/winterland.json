@@ -1,7 +1,7 @@
 {
   "type": "survivalgames:survivalgames",
-  "name": "Survival Games (Winter Island)",
-  "icon": "powder_snow_bucket",
+  "name": "Survival Games (Winterland)",
+  "icon": "snow",
   "border": {
     "start_size": 512,
     "end_size": 16,
@@ -12,30 +12,30 @@
     "min": 1,
     "max": 100
   },
-  "town_depth": 0,
-  "outskirts_building_count": 12,
+  "town_depth": 12,
+  "outskirts_building_count": 16,
   "biome_generator": {
     "type": "survivalgames:winterland"
   },
   "noise_generator": {
-    "type": "survivalgames:island"
+    "type": "survivalgames:default"
   },
   "kit": [
     {
       "id": "minecraft:wooden_sword",
-      "Count": 1
+      "count": 1
     },
     {
       "id": "minecraft:wooden_pickaxe",
-      "Count": 1
+      "count": 1
     },
     {
       "id": "minecraft:wooden_axe",
-      "Count": 1
+      "count": 1
     },
     {
       "id": "minecraft:cobblestone",
-      "Count": 16
+      "count": 16
     }
   ]
 }

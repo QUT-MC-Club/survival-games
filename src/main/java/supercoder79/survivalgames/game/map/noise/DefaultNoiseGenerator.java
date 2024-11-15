@@ -1,5 +1,6 @@
 package supercoder79.survivalgames.game.map.noise;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.util.math.random.Random;
 
 import com.mojang.serialization.Codec;
@@ -16,7 +17,7 @@ import net.minecraft.util.math.MathHelper;
 import supercoder79.survivalgames.noise.simplex.OpenSimplexNoise;
 
 public class DefaultNoiseGenerator implements NoiseGenerator {
-	public static final Codec<DefaultNoiseGenerator> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+	public static final MapCodec<DefaultNoiseGenerator> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 	        Codec.BOOL.optionalFieldOf("rivers", true).forGetter(c -> c.rivers)
 	).apply(instance, DefaultNoiseGenerator::new));
 	private final boolean rivers;
@@ -131,7 +132,7 @@ public class DefaultNoiseGenerator implements NoiseGenerator {
 	}
 
 	@Override
-	public Codec<? extends NoiseGenerator> getCodec() {
+	public MapCodec<? extends NoiseGenerator> getCodec() {
 		return CODEC;
 	}
 }

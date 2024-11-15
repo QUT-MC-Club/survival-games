@@ -2,6 +2,7 @@ package supercoder79.survivalgames.game.map.biome.generator;
 
 import com.mojang.serialization.Codec;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.util.Identifier;
 
 public final class BiomeGenerators {
@@ -14,7 +15,7 @@ public final class BiomeGenerators {
 		register("highland", HighlandBiomeGenerator.CODEC);
 	}
 
-	public static void register(String name, Codec<? extends BiomeGenerator> generator) {
-		BiomeGenerator.REGISTRY.register(new Identifier("survivalgames", name), generator);
+	public static void register(String name, MapCodec<? extends BiomeGenerator> generator) {
+		BiomeGenerator.REGISTRY.register(Identifier.of("survivalgames", name), generator);
 	}
 }

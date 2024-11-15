@@ -5,6 +5,7 @@ import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.structure.PoolStructurePiece;
+import net.minecraft.structure.StructureLiquidSettings;
 import net.minecraft.structure.StructureTemplateManager;
 import supercoder79.survivalgames.game.config.Y256Height;
 import supercoder79.survivalgames.game.map.gen.structure.ChunkBox;
@@ -75,7 +76,7 @@ public final class SurvivalGamesJigsawGenerator {
     }
 
     private PoolStructurePiece createStartPiece(BlockPos origin, Identifier startPoolId) {
-        StructurePool pool = this.registryManager.get(RegistryKeys.TEMPLATE_POOL).get(startPoolId);
+        StructurePool pool = this.registryManager.getOrThrow(RegistryKeys.TEMPLATE_POOL).get(startPoolId);
         if (pool == null) {
             //throw new IllegalStateException("missing start pool: '" + startPoolId + "'");
         }
@@ -86,7 +87,8 @@ public final class SurvivalGamesJigsawGenerator {
         return new PoolStructurePiece(
                 this.structureManager, element,
                 origin, element.getGroundLevelDelta(), rotation,
-                element.getBoundingBox(this.structureManager, origin, rotation)
+                element.getBoundingBox(this.structureManager, origin, rotation),
+                StructureLiquidSettings.APPLY_WATERLOGGING
         );
     }
 

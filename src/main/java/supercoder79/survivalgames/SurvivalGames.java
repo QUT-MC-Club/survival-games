@@ -4,14 +4,14 @@ import dev.gegy.noise.compile.NoiseCompiler;
 import supercoder79.survivalgames.game.SurvivalGamesWaiting;
 import supercoder79.survivalgames.game.map.biome.generator.BiomeGenerators;
 import supercoder79.survivalgames.game.map.gen.processor.SurvivalGamesProcessorTypes;
-import xyz.nucleoid.plasmid.game.GameType;
+import xyz.nucleoid.plasmid.api.game.GameType;
 import supercoder79.survivalgames.game.config.SurvivalGamesConfig;
 import supercoder79.survivalgames.game.map.noise.NoiseGenerators;
 
 import net.minecraft.util.Identifier;
 
 import net.fabricmc.api.ModInitializer;
-import xyz.nucleoid.plasmid.game.rule.GameRuleType;
+import xyz.nucleoid.plasmid.api.game.rule.GameRuleType;
 
 public class SurvivalGames implements ModInitializer {
 	public static final GameRuleType DISABLE_SPAWNERS = GameRuleType.create();
@@ -24,7 +24,7 @@ public class SurvivalGames implements ModInitializer {
 		NoiseGenerators.init();
 
 		GameType.register(
-				new Identifier("survivalgames", "survivalgames"),
+				Identifier.of("survivalgames", "survivalgames"),
 				SurvivalGamesConfig.CODEC,
 				SurvivalGamesWaiting::open
 		);

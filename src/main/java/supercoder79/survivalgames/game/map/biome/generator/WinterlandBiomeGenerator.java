@@ -1,6 +1,7 @@
 package supercoder79.survivalgames.game.map.biome.generator;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import supercoder79.survivalgames.game.map.biome.BiomeGen;
 import supercoder79.survivalgames.game.map.biome.GlacierGen;
 import supercoder79.survivalgames.game.map.biome.IceSpikesGen;
@@ -10,7 +11,7 @@ import supercoder79.survivalgames.game.map.biome.alpine.AlpineSlopedForestGen;
 import supercoder79.survivalgames.game.map.biome.alpine.AlpsGen;
 
 public class WinterlandBiomeGenerator implements BiomeGenerator {
-	public static final Codec<WinterlandBiomeGenerator> CODEC = Codec.unit(new WinterlandBiomeGenerator());
+	public static final MapCodec<WinterlandBiomeGenerator> CODEC = MapCodec.unit(new WinterlandBiomeGenerator());
 
 	@Override
 	public BiomeGen getBiome(double temperature, double rainfall) {
@@ -38,7 +39,7 @@ public class WinterlandBiomeGenerator implements BiomeGenerator {
 	}
 
 	@Override
-	public Codec<? extends BiomeGenerator> getCodec() {
+	public MapCodec<? extends BiomeGenerator> getCodec() {
 		return CODEC;
 	}
 }

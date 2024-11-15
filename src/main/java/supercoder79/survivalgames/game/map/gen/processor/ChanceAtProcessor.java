@@ -1,6 +1,7 @@
 package supercoder79.survivalgames.game.map.gen.processor;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.block.BlockState;
@@ -14,7 +15,7 @@ import net.minecraft.world.Heightmap;
 import net.minecraft.world.WorldView;
 
 public class ChanceAtProcessor extends StructureProcessor {
-	public static Codec<ChanceAtProcessor> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+	public static MapCodec<ChanceAtProcessor> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
 			BlockPos.CODEC.fieldOf("pos").forGetter(p -> p.pos),
 			BlockState.CODEC.fieldOf("state").forGetter(p -> p.state),
 			Codec.BOOL.fieldOf("match_terrain").orElse(false).forGetter(p -> p.matchTerrain),

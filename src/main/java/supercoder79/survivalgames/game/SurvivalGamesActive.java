@@ -29,14 +29,16 @@ import supercoder79.survivalgames.game.config.SurvivalGamesConfig;
 import supercoder79.survivalgames.game.logic.ActiveLogic;
 import supercoder79.survivalgames.game.logic.SpawnerLogic;
 import supercoder79.survivalgames.game.map.SurvivalGamesMap;
-import xyz.nucleoid.plasmid.game.GameCloseReason;
-import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.common.GlobalWidgets;
-import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
-import xyz.nucleoid.plasmid.game.event.GamePlayerEvents;
-import xyz.nucleoid.plasmid.game.player.PlayerSet;
-import xyz.nucleoid.plasmid.game.rule.GameRuleType;
-import xyz.nucleoid.plasmid.util.PlayerRef;
+import xyz.nucleoid.plasmid.api.game.GameCloseReason;
+import xyz.nucleoid.plasmid.api.game.GameSpace;
+import xyz.nucleoid.plasmid.api.game.common.GlobalWidgets;
+import xyz.nucleoid.plasmid.api.game.event.GameActivityEvents;
+import xyz.nucleoid.plasmid.api.game.event.GamePlayerEvents;
+import xyz.nucleoid.plasmid.api.game.player.JoinIntent;
+import xyz.nucleoid.plasmid.api.game.player.PlayerSet;
+import xyz.nucleoid.plasmid.api.game.rule.GameRuleType;
+import xyz.nucleoid.plasmid.api.util.PlayerRef;
+import xyz.nucleoid.stimuli.event.EventResult;
 import xyz.nucleoid.stimuli.event.block.BlockBreakEvent;
 import xyz.nucleoid.stimuli.event.block.BlockPlaceEvent;
 import xyz.nucleoid.stimuli.event.entity.EntityDeathEvent;
@@ -51,9 +53,7 @@ public final class SurvivalGamesActive {
     private final GameSpace space;
     private final SurvivalGamesMap map;
     private final SurvivalGamesConfig config;
-
-    private final PlayerSet participants;
-
+    
     private final SurvivalGamesSpawnLogic spawnLogic;
     private final SurvivalGamesBar bar;
 
@@ -66,11 +66,10 @@ public final class SurvivalGamesActive {
     private final GenerationTracker tracker;
     private final Set<ActiveLogic> logics = new HashSet<>();
 
-    private SurvivalGamesActive(GameSpace space, SurvivalGamesMap map, SurvivalGamesConfig config, PlayerSet participants, GlobalWidgets widgets, ServerWorld world, GenerationTracker tracker) {
+    private SurvivalGamesActive(GameSpace space, SurvivalGamesMap map, SurvivalGamesConfig config, GlobalWidgets widgets, ServerWorld world, GenerationTracker tracker) {
         this.space = space;
         this.map = map;
         this.config = config;
-        this.participants = participants;
         this.world = world;
         this.tracker = tracker;
 
@@ -81,22 +80,25 @@ public final class SurvivalGamesActive {
     public static void open(GameSpace space, SurvivalGamesMap map, SurvivalGamesConfig config, ServerWorld world, GenerationTracker tracker) {
         space.setActivity(game -> {
             GlobalWidgets widgets = GlobalWidgets.addTo(game);
-            SurvivalGamesActive active = new SurvivalGamesActive(space, map, config, space.getPlayers(), widgets, world, tracker);
+            SurvivalGamesActive active = new SurvivalGamesActive(space, map, config, widgets, world, tracker);
 
-            game.setRule(GameRuleType.CRAFTING, ActionResult.PASS);
-            game.setRule(GameRuleType.PORTALS, ActionResult.FAIL);
-            game.setRule(GameRuleType.PVP, ActionResult.PASS);
-            game.setRule(GameRuleType.BLOCK_DROPS, ActionResult.PASS);
-            game.setRule(GameRuleType.FALL_DAMAGE, ActionResult.PASS);
-            game.setRule(GameRuleType.HUNGER, ActionResult.FAIL);
-            game.setRule(GameRuleType.SATURATED_REGENERATION, ActionResult.FAIL);
-            game.setRule(GameRuleType.UNSTABLE_TNT, ActionResult.PASS);
-            game.setRule(GameRuleType.THROW_ITEMS, ActionResult.SUCCESS);
-            game.setRule(SurvivalGames.DISABLE_SPAWNERS, ActionResult.SUCCESS);
+            game.setRule(GameRuleType.CRAFTING, EventResult.PASS);
+            game.setRule(GameRuleType.PORTALS, EventResult.DENY);
+            game.setRule(GameRuleType.PVP, EventResult.PASS);
+            game.setRule(GameRuleType.BLOCK_DROPS, EventResult.PASS);
+            game.setRule(GameRuleType.FALL_DAMAGE, EventResult.PASS);
+            game.setRule(GameRuleType.HUNGER, EventResult.DENY);
+            game.setRule(GameRuleType.SATURATED_REGENERATION, EventResult.DENY);
+            game.setRule(GameRuleType.UNSTABLE_TNT, EventResult.PASS);
+            game.setRule(GameRuleType.THROW_ITEMS, EventResult.ALLOW);
+            game.setRule(SurvivalGames.DISABLE_SPAWNERS, EventResult.ALLOW);
 
             game.listen(GameActivityEvents.CREATE, active::open);
             game.listen(GameActivityEvents.DESTROY, active::close);
 
+            game.listen(GameActivityEvents.STATE_UPDATE, state -> state.canPlay(false));
+
+            game.listen(GamePlayerEvents.OFFER, x -> x.intent() == JoinIntent.SPECTATE ? x.accept() : x.pass());
             game.listen(GamePlayerEvents.JOIN, (player -> active.spawnSpectator(player, world)));
             game.listen(GamePlayerEvents.ADD, (player -> active.addPlayer(player, world)));
 
@@ -126,10 +128,10 @@ public final class SurvivalGamesActive {
         double maxSpawnDistance = radius * this.config.noiseGenerator.maxSpawnDistFactor();
         double minSpawnDistance = radius * this.config.noiseGenerator.minSpawnDistFactor();
 
-        for (ServerPlayerEntity player : this.participants) {
+        for (ServerPlayerEntity player : this.space.getPlayers().participants()) {
             player.networkHandler.sendPacket(new WorldBorderInitializeS2CPacket(world.getWorldBorder()));
 
-            double theta = ((double) index++ / this.participants.size()) * 2 * Math.PI;
+            double theta = ((double) index++ / this.space.getPlayers().participants().size()) * 2 * Math.PI;
 
             int spawnDistance = (int) MathHelper.lerp(random.nextDouble(), minSpawnDistance, maxSpawnDistance);
 
@@ -147,13 +149,13 @@ public final class SurvivalGamesActive {
 
     private void close(GameCloseReason gameCloseReason) {
         // this should hopefully fix players returning as survival mode to the lobby
-        for (ServerPlayerEntity player : this.participants) {
+        for (ServerPlayerEntity player : this.space.getPlayers().participants()) {
             player.changeGameMode(GameMode.SURVIVAL);
         }
     }
 
     private void addPlayer(ServerPlayerEntity player, ServerWorld world) {
-        if (!this.participants.contains(PlayerRef.of(player))) {
+        if (!this.space.getPlayers().participants().contains(PlayerRef.of(player))) {
             player.networkHandler.sendPacket(new WorldBorderInitializeS2CPacket(player.getWorld().getWorldBorder()));
             this.spawnSpectator(player, world);
         }
@@ -168,10 +170,10 @@ public final class SurvivalGamesActive {
                 this.bar.setActive();
                 this.borderShrinkStarted = true;
                 this.shrinkStartTime = world.getTime();
-                this.participants.sendMessage(Text.literal("The worldborder has started shrinking!").formatted(Formatting.RED));
+                this.space.getPlayers().participants().sendMessage(Text.literal("The worldborder has started shrinking!").formatted(Formatting.RED));
 
                 world.getWorldBorder().interpolateSize(config.borderConfig.startSize, config.borderConfig.endSize, 1000L * config.borderConfig.shrinkSecs);
-                for (ServerPlayerEntity player : this.participants) {
+                for (ServerPlayerEntity player : this.space.getPlayers().participants()) {
                     player.networkHandler.sendPacket(new WorldBorderInterpolateSizeS2CPacket(world.getWorldBorder()));
                 }
             }
@@ -180,7 +182,7 @@ public final class SurvivalGamesActive {
 
             if ((world.getTime() - shrinkStartTime) > totalShrinkTime || world.getWorldBorder().getSize() == this.config.borderConfig.endSize) {
                 if (!this.finished) {
-                    this.participants.sendMessage(Text.literal("Last one standing wins!").formatted(Formatting.BLUE));
+                    this.space.getPlayers().participants().sendMessage(Text.literal("Last one standing wins!").formatted(Formatting.BLUE));
                     world.getWorldBorder().setDamagePerBlock(2.5);
                     world.getWorldBorder().setSafeZone(0.125);
                     this.bar.setFinished();
@@ -211,14 +213,14 @@ public final class SurvivalGamesActive {
         if (this.world.isReceivingRedstonePower(pos)) {
             addLogic(new SpawnerLogic(this, pos));
             TargetPredicate pred = TargetPredicate.DEFAULT;
-            pred.setPredicate(p -> p instanceof ServerPlayerEntity player && this.participants.contains(player) && player.interactionManager.isSurvivalLike());
+            pred.setPredicate((p, w) -> p instanceof ServerPlayerEntity player && this.space.getPlayers().participants().contains(player) && player.interactionManager.isSurvivalLike());
 
             PlayerEntity player = this.world.getClosestPlayer(pred, pos.getX(), pos.getY(), pos.getZ());
 
             if (player != null) {
-                this.participants.sendMessage(Text.literal(player.getNameForScoreboard() + " triggered a spawner!").formatted(Formatting.GOLD));
+                this.space.getPlayers().participants().sendMessage(Text.literal(player.getNameForScoreboard() + " triggered a spawner!").formatted(Formatting.GOLD));
             } else {
-                this.participants.sendMessage(Text.literal("A spawner has been triggered!").formatted(Formatting.GOLD));
+                this.space.getPlayers().participants().sendMessage(Text.literal("A spawner has been triggered!").formatted(Formatting.GOLD));
             }
 
             return true;
@@ -226,22 +228,21 @@ public final class SurvivalGamesActive {
         return false;
     }
 
-    private ActionResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
+    private EventResult onPlayerDeath(ServerPlayerEntity player, DamageSource source) {
         this.eliminatePlayer(player);
-        return ActionResult.FAIL;
+        return EventResult.DENY;
     }
 
-    private ActionResult onEntityDeath(Entity entity, DamageSource source) {
+    private EventResult onEntityDeath(Entity entity, DamageSource source) {
         for (ActiveLogic logic : this.logics) {
-            ActionResult res = logic.onEntityDeath(entity, source);
+            var res = logic.onEntityDeath(entity, source);
 
-            if (res != ActionResult.PASS) {
+            if (res != EventResult.PASS) {
                 return res;
             }
         }
 
-
-        return ActionResult.PASS;
+        return EventResult.PASS;
     }
 
     private void eliminatePlayer(ServerPlayerEntity player) {
@@ -257,14 +258,14 @@ public final class SurvivalGamesActive {
         this.spawnLogic.resetPlayer(player, GameMode.SPECTATOR);
 
         int survival = 0;
-        for (ServerPlayerEntity participant : this.participants) {
+        for (ServerPlayerEntity participant : this.space.getPlayers().participants()) {
             if (participant.interactionManager.isSurvivalLike()) {
                 survival++;
             }
         }
 
         if (survival == 1) {
-            for (ServerPlayerEntity participant : this.participants) {
+            for (ServerPlayerEntity participant : this.space.getPlayers().participants()) {
                 if (participant.interactionManager.isSurvivalLike()) {
                     players.sendMessage(Text.literal(participant.getNameForScoreboard() + " won!").formatted(Formatting.GOLD));
                     this.gameCloseTick = this.space.getTime() + (20 * 10);
@@ -279,7 +280,7 @@ public final class SurvivalGamesActive {
         this.spawnLogic.spawnPlayerAtCenter(player, world);
     }
 
-    private ActionResult onBreakBlock(ServerPlayerEntity player, ServerWorld world, BlockPos pos) {
+    private EventResult onBreakBlock(ServerPlayerEntity player, ServerWorld world, BlockPos pos) {
         BlockState state = world.getBlockState(pos);
 
         if (state.isIn(BlockTags.LOGS) && !player.isSneaking()) {
@@ -295,39 +296,39 @@ public final class SurvivalGamesActive {
                 world.spawnEntity(new ItemEntity(world, log.getX(), log.getY(), log.getZ(), new ItemStack(logState.getBlock())));
             }
 
-            return ActionResult.FAIL;
+            return EventResult.DENY;
         }
 
         if (state.isOf(Blocks.SPAWNER)) {
-            return ActionResult.FAIL;
+            return EventResult.DENY;
         }
 
         if (state.isOf(Blocks.IRON_ORE)) {
             world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(Items.IRON_INGOT)));
             world.breakBlock(pos, false);
 
-            return ActionResult.FAIL;
+            return EventResult.DENY;
         }
 
         if (state.isOf(Blocks.RAW_IRON_BLOCK)) {
             world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(Items.IRON_INGOT, 9)));
             world.breakBlock(pos, false);
 
-            return ActionResult.FAIL;
+            return EventResult.DENY;
         }
 
         if (state.isOf(Blocks.COAL_ORE)) {
             world.spawnEntity(new ItemEntity(world, pos.getX(), pos.getY(), pos.getZ(), new ItemStack(Items.COAL)));
             world.breakBlock(pos, false);
 
-            return ActionResult.FAIL;
+            return EventResult.DENY;
         }
 
         if (state.isOf(Blocks.ENCHANTING_TABLE)) {
-            return ActionResult.FAIL;
+            return EventResult.DENY;
         }
 
-        return ActionResult.PASS;
+        return EventResult.PASS;
     }
 
     private void findLogs(ServerWorld world, BlockPos pos, Set<BlockPos> logs) {
@@ -348,12 +349,12 @@ public final class SurvivalGamesActive {
         }
     }
 
-    private ActionResult onUseBlock(ServerPlayerEntity playerEntity, ServerWorld world, BlockPos pos, BlockState state, ItemUsageContext itemUsageContext) {
+    private EventResult onUseBlock(ServerPlayerEntity playerEntity, ServerWorld world, BlockPos pos, BlockState state, ItemUsageContext itemUsageContext) {
         if (pos.getY() >= 100) {
-            return ActionResult.FAIL;
+            return EventResult.DENY;
         }
 
-        return ActionResult.PASS;
+        return EventResult.PASS;
     }
 
     public ServerWorld getWorld() {

@@ -2,6 +2,7 @@ package supercoder79.survivalgames.game.map.biome.source;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.gegy.noise.sampler.NoiseSampler2d;
 import net.minecraft.registry.Registry;
@@ -44,8 +45,8 @@ public final class FakeBiomeSource extends BiomeSource {
 	}
 
 	@Override
-	protected Codec<? extends BiomeSource> getCodec() {
-		return Codec.unit(this);
+	protected MapCodec<? extends BiomeSource> getCodec() {
+		return MapCodec.unit(this);
 	}
 
 	@Override
@@ -55,7 +56,7 @@ public final class FakeBiomeSource extends BiomeSource {
 
 	@Override
 	public RegistryEntry<Biome> getBiome(int x, int y, int z, MultiNoiseUtil.MultiNoiseSampler noise) {
-		return biomeRegistry.getEntry(getRealBiome(x << 2, z << 2).getFakingBiome()).get();
+		return biomeRegistry.getOrThrow(getRealBiome(x << 2, z << 2).getFakingBiome());
 	}
 
 	public BiomeGen getRealBiome(int x, int z) {

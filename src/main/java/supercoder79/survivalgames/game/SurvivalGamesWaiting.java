@@ -10,13 +10,13 @@ import supercoder79.survivalgames.SurvivalGames;
 import supercoder79.survivalgames.game.config.SurvivalGamesConfig;
 import supercoder79.survivalgames.game.map.SurvivalGamesMap;
 import xyz.nucleoid.fantasy.RuntimeWorldConfig;
-import xyz.nucleoid.plasmid.game.GameOpenContext;
-import xyz.nucleoid.plasmid.game.GameOpenProcedure;
-import xyz.nucleoid.plasmid.game.GameResult;
-import xyz.nucleoid.plasmid.game.GameSpace;
-import xyz.nucleoid.plasmid.game.common.GameWaitingLobby;
-import xyz.nucleoid.plasmid.game.event.GameActivityEvents;
-import xyz.nucleoid.plasmid.game.event.GamePlayerEvents;
+import xyz.nucleoid.plasmid.api.game.GameOpenContext;
+import xyz.nucleoid.plasmid.api.game.GameOpenProcedure;
+import xyz.nucleoid.plasmid.api.game.GameResult;
+import xyz.nucleoid.plasmid.api.game.GameSpace;
+import xyz.nucleoid.plasmid.api.game.common.GameWaitingLobby;
+import xyz.nucleoid.plasmid.api.game.event.GameActivityEvents;
+import xyz.nucleoid.plasmid.api.game.event.GamePlayerEvents;
 
 public final class SurvivalGamesWaiting {
 	private final GameSpace world;
@@ -49,7 +49,7 @@ public final class SurvivalGamesWaiting {
 			game.allow(SurvivalGames.DISABLE_SPAWNERS);
 			game.listen(GameActivityEvents.REQUEST_START, () -> waiting.requestStart(world));
 			game.listen(GamePlayerEvents.REMOVE, waiting::onPlayerDeath);
-			game.listen(GamePlayerEvents.OFFER, offer -> offer.accept(world, new Vec3d(0, height, 0)));
+			game.listen(GamePlayerEvents.ACCEPT, offer -> offer.teleport(world, new Vec3d(0, height, 0)));
 		});
 	}
 

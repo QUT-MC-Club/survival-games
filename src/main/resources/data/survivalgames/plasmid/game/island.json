@@ -23,19 +23,19 @@
   "kit": [
     {
       "id": "minecraft:wooden_sword",
-      "Count": 1
+      "count": 1
     },
     {
       "id": "minecraft:wooden_pickaxe",
-      "Count": 1
+      "count": 1
     },
     {
       "id": "minecraft:wooden_axe",
-      "Count": 1
+      "count": 1
     },
     {
       "id": "minecraft:cobblestone",
-      "Count": 16
+      "count": 16
     }
   ]
 }

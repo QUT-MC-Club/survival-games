@@ -1,41 +1,42 @@
 {
   "type": "survivalgames:survivalgames",
-  "name": "Survival Games (Large)",
-  "icon": "moss_block",
+  "name": "Survival Games (Highland)",
+  "icon": "dirt",
   "border": {
-    "start_size": 768,
+    "start_size": 512,
     "end_size": 16,
-    "safe_secs": 150,
-    "shrink_secs": 300
+    "safe_secs": 120,
+    "shrink_secs": 240
   },
   "players": {
     "min": 1,
     "max": 100
   },
-  "town_depth": 14,
-  "outskirts_building_count": 32,
+  "town_depth": 12,
+  "outskirts_building_count": 16,
   "biome_generator": {
-    "type": "survivalgames:default"
+    "type": "survivalgames:highland"
   },
   "noise_generator": {
-    "type": "survivalgames:default"
+    "type": "survivalgames:default",
+    "rivers": false
   },
   "kit": [
     {
       "id": "minecraft:wooden_sword",
-      "Count": 1
+      "count": 1
     },
     {
       "id": "minecraft:wooden_pickaxe",
-      "Count": 1
+      "count": 1
     },
     {
       "id": "minecraft:wooden_axe",
-      "Count": 1
+      "count": 1
     },
     {
       "id": "minecraft:cobblestone",
-      "Count": 16
+      "count": 16
     }
   ]
 }

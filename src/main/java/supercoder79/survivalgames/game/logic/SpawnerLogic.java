@@ -1,14 +1,15 @@
 package supercoder79.survivalgames.game.logic;
 
+import net.minecraft.component.type.FireworkExplosionComponent;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.attribute.EntityAttributes;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.entity.projectile.FireworkRocketEntity;
-import net.minecraft.item.FireworkRocketItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particle.ParticleTypes;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
@@ -17,10 +18,12 @@ import net.minecraft.world.Heightmap;
 import supercoder79.survivalgames.entity.SpawnerZombieEntity;
 import supercoder79.survivalgames.game.SurvivalGamesActive;
 import supercoder79.survivalgames.game.map.loot.LootProviders;
-import xyz.nucleoid.plasmid.util.ItemStackBuilder;
+import xyz.nucleoid.plasmid.api.util.ItemStackBuilder;
+import xyz.nucleoid.stimuli.event.EventResult;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Function;
 
 public final class SpawnerLogic implements ActiveLogic {
     private final SurvivalGamesActive active;
@@ -51,7 +54,7 @@ public final class SpawnerLogic implements ActiveLogic {
                 pos.getX(),
                 pos.getY(),
                 pos.getZ(),
-                ItemStackBuilder.firework(color, 2, FireworkRocketItem.Type.LARGE_BALL).build()
+                ItemStackBuilder.firework(color, 2, FireworkExplosionComponent.Type.LARGE_BALL).build()
         );
 
         world.spawnEntity(firework);
@@ -72,7 +75,7 @@ public final class SpawnerLogic implements ActiveLogic {
 
                 SpawnerZombieEntity zombie = new SpawnerZombieEntity(this.active.getWorld());
                 // More damage
-                zombie.getAttributeInstance(EntityAttributes.GENERIC_ATTACK_DAMAGE).setBaseValue(5.0);
+                zombie.getAttributeInstance(EntityAttributes.ATTACK_DAMAGE).setBaseValue(5.0);
 
                 zombie.refreshPositionAndAngles(new BlockPos(x, y, z), 0, 0);
                 this.active.getWorld().spawnEntity(zombie);
@@ -121,22 +124,23 @@ public final class SpawnerLogic implements ActiveLogic {
     private void tryEnchant(ItemStack stack) {
         if (this.random.nextInt(2) == 0) {
             if (stack.isEnchantable()) {
-                EnchantmentHelper.enchant(this.random, stack, 5 + this.random.nextInt(this.random.nextInt(25) + 1), true);
+                EnchantmentHelper.enchant(this.random, stack, 5 + this.random.nextInt(this.random.nextInt(25) + 1),
+                        this.active.getWorld().getRegistryManager().getOrThrow(RegistryKeys.ENCHANTMENT).streamEntries().map(Function.identity()));
             }
         }
     }
 
     @Override
-    public ActionResult onEntityDeath(Entity entity, DamageSource source) {
+    public EventResult onEntityDeath(Entity entity, DamageSource source) {
         if (entity instanceof SpawnerZombieEntity zombie) {
             if (this.zombies.contains(zombie)) {
                 this.zombies.remove(zombie);
 
-                return ActionResult.SUCCESS;
+                return EventResult.ALLOW;
             }
         }
 
-        return ActionResult.PASS;
+        return EventResult.PASS;
     }
 
     private enum Stage {

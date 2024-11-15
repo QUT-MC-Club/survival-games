@@ -2,6 +2,7 @@ package supercoder79.survivalgames.game.map.noise;
 
 import com.mojang.serialization.Codec;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.util.Identifier;
 
 public final class NoiseGenerators {
@@ -10,7 +11,7 @@ public final class NoiseGenerators {
 		register("island", IslandNoiseGenerator.CODEC);
 	}
 
-	public static void register(String name, Codec<? extends NoiseGenerator> generator) {
-		NoiseGenerator.REGISTRY.register(new Identifier("survivalgames", name), generator);
+	public static void register(String name, MapCodec<? extends NoiseGenerator> generator) {
+		NoiseGenerator.REGISTRY.register(Identifier.of("survivalgames", name), generator);
 	}
 }

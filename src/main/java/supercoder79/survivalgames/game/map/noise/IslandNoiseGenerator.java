@@ -1,5 +1,6 @@
 package supercoder79.survivalgames.game.map.noise;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.util.math.random.Random;
 
 import com.mojang.serialization.Codec;
@@ -13,7 +14,7 @@ import supercoder79.survivalgames.noise.simplex.OpenSimplexNoise;
 import net.minecraft.util.math.MathHelper;
 
 public class IslandNoiseGenerator implements NoiseGenerator {
-	public static final Codec<IslandNoiseGenerator> CODEC = Codec.unit(new IslandNoiseGenerator());
+	public static final MapCodec<IslandNoiseGenerator> CODEC = MapCodec.unit(new IslandNoiseGenerator());
 	private NoiseSampler2d baseNoise;
 	private NoiseSampler2d interpolationNoise;
 	private NoiseSampler2d lowerInterpolatedNoise;
@@ -131,7 +132,7 @@ public class IslandNoiseGenerator implements NoiseGenerator {
 	}
 
 	@Override
-	public Codec<? extends NoiseGenerator> getCodec() {
+	public MapCodec<? extends NoiseGenerator> getCodec() {
 		return CODEC;
 	}
 }

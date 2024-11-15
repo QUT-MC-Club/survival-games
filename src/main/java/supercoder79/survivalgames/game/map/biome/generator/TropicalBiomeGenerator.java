@@ -2,6 +2,7 @@ package supercoder79.survivalgames.game.map.biome.generator;
 
 import com.mojang.serialization.Codec;
 
+import com.mojang.serialization.MapCodec;
 import supercoder79.survivalgames.game.map.biome.AspenForestGen;
 import supercoder79.survivalgames.game.map.biome.BadlandsGen;
 import supercoder79.survivalgames.game.map.biome.BiomeGen;
@@ -13,7 +14,7 @@ import supercoder79.survivalgames.game.map.biome.SavannaGen;
 import supercoder79.survivalgames.game.map.biome.ShatteredSavannaGen;
 
 public class TropicalBiomeGenerator implements BiomeGenerator {
-    public static final Codec<TropicalBiomeGenerator> CODEC = Codec.unit(new TropicalBiomeGenerator());
+    public static final MapCodec<TropicalBiomeGenerator> CODEC = MapCodec.unit(new TropicalBiomeGenerator());
 
 	@Override
 	public BiomeGen getBiome(double temperature, double rainfall) {
@@ -49,7 +50,7 @@ public class TropicalBiomeGenerator implements BiomeGenerator {
 	}
 
 	@Override
-	public Codec<? extends BiomeGenerator> getCodec() {
+	public MapCodec<? extends BiomeGenerator> getCodec() {
 		return CODEC;
 	}
 }

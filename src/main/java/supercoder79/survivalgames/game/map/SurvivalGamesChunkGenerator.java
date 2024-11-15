@@ -8,6 +8,8 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
+import net.minecraft.entity.EntityType;
+import net.minecraft.entity.SpawnReason;
 import net.minecraft.entity.vehicle.BoatEntity;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.tag.BlockTags;
@@ -48,7 +50,7 @@ import supercoder79.survivalgames.game.map.noise.NoiseGenerator;
 import supercoder79.survivalgames.noise.WorleyNoise;
 import supercoder79.survivalgames.noise.simplex.OpenSimplexNoise;
 import xyz.nucleoid.substrate.gen.DiskGen;
-import xyz.nucleoid.plasmid.game.world.generator.GameChunkGenerator;
+import xyz.nucleoid.plasmid.api.game.world.generator.GameChunkGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,7 +79,7 @@ public class SurvivalGamesChunkGenerator extends GameChunkGenerator {
 	private final GenerationTracker tracker;
 
 	public SurvivalGamesChunkGenerator(MinecraftServer server, SurvivalGamesConfig config, GenerationTracker tracker) {
-		super(new FakeBiomeSource(server.getRegistryManager().get(RegistryKeys.BIOME), Random.create().nextLong(), config.biomeGenerator));
+		super(new FakeBiomeSource(server.getRegistryManager().getOrThrow(RegistryKeys.BIOME), Random.create().nextLong(), config.biomeGenerator));
 		Random random = Random.create();
 		this.tracker = tracker;
 
@@ -105,7 +107,7 @@ public class SurvivalGamesChunkGenerator extends GameChunkGenerator {
 
 		if (config.townDepth > 0) {
 			SurvivalGamesJigsawGenerator generator = new SurvivalGamesJigsawGenerator(server, this, piecesByChunk);
-			generator.arrangePieces(new BlockPos(0, 64, 0), new Identifier("survivalgames", "starts"), config.townDepth);
+			generator.arrangePieces(new BlockPos(0, 64, 0), Identifier.of("survivalgames", "starts"), config.townDepth);
 			townArea = generator.getBox();
 			generators.add(generator);
 			mask.and(townArea);
@@ -146,7 +148,7 @@ public class SurvivalGamesChunkGenerator extends GameChunkGenerator {
 	}
 
 	@Override
-	public CompletableFuture<Chunk> populateNoise(Executor executor, Blender blender, NoiseConfig noiseConfig, StructureAccessor structureAccessor, Chunk chunk) {
+	public CompletableFuture<Chunk> populateNoise(Blender blender, NoiseConfig noiseConfig, StructureAccessor structureAccessor, Chunk chunk) {
 		populateNoise(structureAccessor, chunk);
 		return CompletableFuture.completedFuture(chunk);
 	}
@@ -325,7 +327,7 @@ public class SurvivalGamesChunkGenerator extends GameChunkGenerator {
 
 					if (world.isAir(mutable)) {
 						BlockState down = world.getBlockState(mutable.down());
-						if (down.isOpaqueFullCube(world, mutable.down()) || down.isIn(BlockTags.LEAVES)) {
+						if (down.isOpaqueFullCube() || down.isIn(BlockTags.LEAVES)) {
 							world.setBlockState(mutable, Blocks.SNOW.getDefaultState(), 3);
 
 							if (down.contains(Properties.SNOWY)) {
@@ -374,7 +376,8 @@ public class SurvivalGamesChunkGenerator extends GameChunkGenerator {
 
 				if (world.getBlockState(local).isOf(Blocks.WATER)) {
 					placed++;
-					BoatEntity boat = new BoatEntity(world.toServerWorld(), local.getX(), local.getY() + 1, local.getZ());
+					BoatEntity boat = EntityType.OAK_BOAT.create(world.toServerWorld(), SpawnReason.CHUNK_GENERATION);
+					boat.setPos(local.getX(), local.getY() + 1, local.getZ());
 					world.spawnEntity(boat);
 
 					if (placed >= 4) {
@@ -386,11 +389,6 @@ public class SurvivalGamesChunkGenerator extends GameChunkGenerator {
 	}
 
 	@Override
-	public CompletableFuture<Chunk> populateBiomes(Executor executor, NoiseConfig noiseConfig, Blender blender, StructureAccessor structureAccessor, Chunk chunk) {
-		return super.populateBiomes(executor, noiseConfig, blender, structureAccessor, chunk);
-	}
-
-	@Override
-	public void carve(ChunkRegion chunkRegion, long seed, NoiseConfig noiseConfig, BiomeAccess world, StructureAccessor structureAccessor, Chunk chunk, GenerationStep.Carver carverStep) {
+	public void carve(ChunkRegion chunkRegion, long seed, NoiseConfig noiseConfig, BiomeAccess world, StructureAccessor structureAccessor, Chunk chunk) {
 	}
 }

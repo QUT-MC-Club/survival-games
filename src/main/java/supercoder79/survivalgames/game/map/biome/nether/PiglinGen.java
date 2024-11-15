@@ -16,7 +16,7 @@ public class PiglinGen implements MapGen {
     public void generate(ServerWorldAccess world, BlockPos pos, Random random) {
         PiglinEntity piglin = new PiglinEntity(EntityType.PIGLIN, world.toServerWorld());
         piglin.refreshPositionAndAngles(pos.getX(), pos.getY(), pos.getZ(), 0, 0);
-        piglin.initialize(world, world.getLocalDifficulty(pos), SpawnReason.CHUNK_GENERATION, null, null);
+        piglin.initialize(world, world.getLocalDifficulty(pos), SpawnReason.CHUNK_GENERATION, null);
         world.spawnEntity(piglin);
     }
 }

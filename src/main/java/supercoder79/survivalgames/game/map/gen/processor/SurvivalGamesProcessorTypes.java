@@ -9,7 +9,7 @@ public class SurvivalGamesProcessorTypes {
 	public static StructureProcessorType<LootChestProcessor> LOOT;
 	public static StructureProcessorType<ChanceAtProcessor> CHANCE_AT;
 	public static void init() {
-		LOOT = Registry.register(Registries.STRUCTURE_PROCESSOR, new Identifier("survivalgames", "loot"), () -> LootChestProcessor.CODEC);
-		CHANCE_AT = Registry.register(Registries.STRUCTURE_PROCESSOR, new Identifier("survivalgames", "chance_at"), () -> ChanceAtProcessor.CODEC);
+		LOOT = Registry.register(Registries.STRUCTURE_PROCESSOR, Identifier.of("survivalgames", "loot"), () -> LootChestProcessor.CODEC);
+		CHANCE_AT = Registry.register(Registries.STRUCTURE_PROCESSOR, Identifier.of("survivalgames", "chance_at"), () -> ChanceAtProcessor.CODEC);
 	}
 }

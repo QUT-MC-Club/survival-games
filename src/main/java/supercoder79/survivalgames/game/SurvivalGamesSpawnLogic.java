@@ -11,7 +11,9 @@ import net.minecraft.world.Heightmap;
 import net.minecraft.world.chunk.WorldChunk;
 import org.apache.logging.log4j.core.jmx.Server;
 import supercoder79.survivalgames.game.config.SurvivalGamesConfig;
-import xyz.nucleoid.plasmid.game.GameSpace;
+import xyz.nucleoid.plasmid.api.game.GameSpace;
+
+import java.util.Set;
 
 public final class SurvivalGamesSpawnLogic {
     private final GameSpace world;
@@ -76,6 +78,6 @@ public final class SurvivalGamesSpawnLogic {
             }
         }
 
-        player.teleport(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, 0.0F, 0.0F);
+        player.teleport(world, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, Set.of(), 0.0F, 0.0F, true);
     }
 }

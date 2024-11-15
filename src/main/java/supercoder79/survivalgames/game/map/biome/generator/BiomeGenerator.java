@@ -5,10 +5,10 @@ import java.util.function.Function;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import supercoder79.survivalgames.game.map.biome.BiomeGen;
-import xyz.nucleoid.plasmid.registry.TinyRegistry;
+import xyz.nucleoid.plasmid.api.util.TinyRegistry;
 
 public interface BiomeGenerator {
-	TinyRegistry<Codec<? extends BiomeGenerator>> REGISTRY = TinyRegistry.create();
+	TinyRegistry<MapCodec<? extends BiomeGenerator>> REGISTRY = TinyRegistry.create();
 	MapCodec<BiomeGenerator> CODEC = REGISTRY.dispatchMap(BiomeGenerator::getCodec, Function.identity());
 
 	BiomeGen getBiome(double temperature, double rainfall);
@@ -17,5 +17,5 @@ public interface BiomeGenerator {
 		return false;
 	}
 
-	Codec<? extends BiomeGenerator> getCodec();
+	MapCodec<? extends BiomeGenerator> getCodec();
 }

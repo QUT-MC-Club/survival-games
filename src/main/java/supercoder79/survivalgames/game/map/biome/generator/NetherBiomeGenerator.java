@@ -1,11 +1,12 @@
 package supercoder79.survivalgames.game.map.biome.generator;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import supercoder79.survivalgames.game.map.biome.BiomeGen;
 import supercoder79.survivalgames.game.map.biome.nether.*;
 
 public class NetherBiomeGenerator implements BiomeGenerator{
-    public static final Codec<NetherBiomeGenerator> CODEC = Codec.unit(new NetherBiomeGenerator());
+    public static final MapCodec<NetherBiomeGenerator> CODEC = MapCodec.unit(new NetherBiomeGenerator());
 
     @Override
     public BiomeGen getBiome(double temperature, double rainfall) {
@@ -27,7 +28,7 @@ public class NetherBiomeGenerator implements BiomeGenerator{
     }
 
     @Override
-    public Codec<? extends BiomeGenerator> getCodec() {
+    public MapCodec<? extends BiomeGenerator> getCodec() {
         return CODEC;
     }
 }
