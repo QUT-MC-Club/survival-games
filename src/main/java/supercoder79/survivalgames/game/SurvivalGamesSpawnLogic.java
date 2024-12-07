@@ -2,7 +2,6 @@ package supercoder79.survivalgames.game;
 
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -43,8 +42,6 @@ public final class SurvivalGamesSpawnLogic {
     public void spawnPlayerAt(ServerPlayerEntity player, int x, int z, ServerWorld world) {
 
         ChunkPos chunkPos = new ChunkPos(x >> 4, z >> 4);
-        world.getChunkManager().addTicket(ChunkTicketType.POST_TELEPORT, chunkPos, 1, player.getId());
-
         WorldChunk chunk = world.getChunk(chunkPos.x, chunkPos.z);
         BlockPos pos = new BlockPos(x, chunk.sampleHeightmap(Heightmap.Type.MOTION_BLOCKING_NO_LEAVES, x, z) + 1, z);
 
